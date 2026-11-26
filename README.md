@@ -111,3 +111,41 @@ erDiagram
 1. Bir kargo sıfır veya birden fazla kontrol kaydına sahip olabilir; her kontrol kaydı tam olarak bir kargoya aittir.
 
 2. Bir kamera sıfır veya birden fazla kontrol kaydı oluşturabilir; her kontrol kaydı tam olarak bir kameraya aittir.
+
+
+
+### 2.2 Normalizasyon Notu
+
+| Tablo | İşlevsel bağımlılık ve ayrılma nedeni | Normal form |
+|---|---|---|
+| packages | package_id → tracking_code. Kargo bilgileri her kontrol kaydında tekrarlanmasın diye ayrı tutulur. | 3NF |
+| cameras | camera_id → location. Kamera konumu her kontrolde yeniden yazılmasın diye ayrı tutulur. | 3NF |
+| inspections | inspection_id → package_id, camera_id, image_path, damage_status, inspected_at. Her kontrol ayrı bir kayıt olarak tutulur. | 3NF |
+
+**1NF:** Her hücre tek bir değer içerir. Örneğin inspections.image_path alanında bir kontrolün görüntü dosyası yolu tutulur.
+
+**2NF:** Üç tablonun da birincil anahtarı tek sütunludur. Örneğin inspection_id, kontrol kaydının diğer alanlarını belirler; kısmi bağımlılık bulunmaz.
+
+**3NF:** Anahtar olmayan alanlar birbirini belirlemez. Örneğin kamera konumu inspections tablosunda tekrarlanmaz; camera_id aracılığıyla cameras tablosundan bulunur. Böylece gereksiz tekrar ve güncelleme hataları önlenir.
+
+
+
+### 2.3 Kendi Projem İçin İki JOIN Sorusu
+
+**Soru 1:** Hasarlı olarak kaydedilen kontrollerin kargo takip kodları ve kamera konumları nelerdir?
+
+- Tablolar: inspections, packages, cameras
+- Birleşme koşulları:
+  - inspections.package_id = packages.package_id
+  - inspections.camera_id = cameras.camera_id
+- JOIN türü: INNER JOIN
+- Neden: Yalnızca eşleşen kargo ve kamera bilgileri getirilir. Hasarlı kontroller, inspections.damage_status = 'damaged' koşuluyla seçilir.
+
+**Soru 2:** Henüz hiç kontrol edilmemiş kargoların takip kodları nelerdir?
+
+- Tablolar: packages, inspections
+- Birleşme koşulu: packages.package_id = inspections.package_id
+- JOIN türü: LEFT JOIN
+- Neden: Bütün kargolar korunur. inspections.inspection_id IS NULL koşuluyla henüz kontrol kaydı bulunmayan kargolar tespit edilir.
+
+Not: Bu sorular tasarlanan veritabanı şemasına aittir. Tablolar henüz oluşturulmadığı için sorgular çalıştırılmamıştır.
