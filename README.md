@@ -73,3 +73,41 @@ SQL kodları [sorgular.sql](sorgular.sql) dosyasındadır. Bu açıklamalar **Vi
 ## Bu Aşamanın Kapsamı
 
 Bu çalışma veri setinin seçilmesi, veri kartının hazırlanması ve 3–5. hafta SQL konularına yönelik ön analiz çalışmasıdır. Henüz görüntülere karşı çalışan bir görüntü işleme modeli veya kalıcı veritabanı oluşturulmamıştır.
+
+
+
+## Veri Modeli
+
+### 2.1 Güncel ERD
+
+
+```mermaid
+erDiagram
+    packages {
+        int package_id PK
+        string tracking_code
+    }
+
+    cameras {
+        int camera_id PK
+        string location
+    }
+
+    inspections {
+        int inspection_id PK
+        int package_id FK
+        int camera_id FK
+        string image_path
+        string damage_status
+        datetime inspected_at
+    }
+
+    packages ||--o{ inspections : "kontrol edilir"
+    cameras ||--o{ inspections : "kontrol yapar"
+```
+
+#### İlişki Açıklamaları
+
+1. Bir kargo sıfır veya birden fazla kontrol kaydına sahip olabilir; her kontrol kaydı tam olarak bir kargoya aittir.
+
+2. Bir kamera sıfır veya birden fazla kontrol kaydı oluşturabilir; her kontrol kaydı tam olarak bir kameraya aittir.
